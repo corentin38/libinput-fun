@@ -975,9 +975,6 @@ START_TEST(touchpad_2fg_tap)
 	struct libinput *li = dev->libinput;
 	enum libinput_config_tap_button_map map = _i; /* ranged test */
 	unsigned int button = 0;
-	struct libinput_event *ev;
-	struct libinput_event_pointer *ptrev;
-	uint64_t ptime, rtime;
 
 	litest_enable_tap(dev->libinput_device);
 	litest_set_tap_map(dev->libinput_device, map);
@@ -1002,20 +999,11 @@ START_TEST(touchpad_2fg_tap)
 
 	libinput_dispatch(li);
 
-	ev = libinput_get_event(li);
-	ptrev = litest_is_button_event(ev,
-				       button,
-				       LIBINPUT_BUTTON_STATE_PRESSED);
-	ptime = libinput_event_pointer_get_time_usec(ptrev);
-	libinput_event_destroy(ev);
-	ev = libinput_get_event(li);
-	ptrev = litest_is_button_event(ev,
-				       button,
-				       LIBINPUT_BUTTON_STATE_RELEASED);
-	rtime = libinput_event_pointer_get_time_usec(ptrev);
-	libinput_event_destroy(ev);
-
-	ck_assert_int_lt(ptime, rtime);
+	litest_assert_button_event(li, button,
+				   LIBINPUT_BUTTON_STATE_PRESSED);
+	litest_timeout_tap();
+	litest_assert_button_event(li, button,
+				   LIBINPUT_BUTTON_STATE_RELEASED);
 
 	litest_assert_empty_queue(li);
 }
@@ -1027,9 +1015,6 @@ START_TEST(touchpad_2fg_tap_inverted)
 	struct libinput *li = dev->libinput;
 	enum libinput_config_tap_button_map map = _i; /* ranged test */
 	unsigned int button = 0;
-	struct libinput_event *ev;
-	struct libinput_event_pointer *ptrev;
-	uint64_t ptime, rtime;
 
 	litest_enable_tap(dev->libinput_device);
 	litest_set_tap_map(dev->libinput_device, map);
@@ -1054,20 +1039,11 @@ START_TEST(touchpad_2fg_tap_inverted)
 
 	libinput_dispatch(li);
 
-	ev = libinput_get_event(li);
-	ptrev = litest_is_button_event(ev,
-				       button,
-				       LIBINPUT_BUTTON_STATE_PRESSED);
-	ptime = libinput_event_pointer_get_time_usec(ptrev);
-	libinput_event_destroy(ev);
-	ev = libinput_get_event(li);
-	ptrev = litest_is_button_event(ev,
-				       button,
-				       LIBINPUT_BUTTON_STATE_RELEASED);
-	rtime = libinput_event_pointer_get_time_usec(ptrev);
-	libinput_event_destroy(ev);
-
-	ck_assert_int_lt(ptime, rtime);
+	litest_assert_button_event(li, button,
+				   LIBINPUT_BUTTON_STATE_PRESSED);
+	litest_timeout_tap();
+	litest_assert_button_event(li, button,
+				   LIBINPUT_BUTTON_STATE_RELEASED);
 
 	litest_assert_empty_queue(li);
 }
