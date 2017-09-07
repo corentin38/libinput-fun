@@ -1254,6 +1254,37 @@ START_TEST(touchpad_2fg_tap_click_apple)
 }
 END_TEST
 
+START_TEST(touchpad_2fg_half_doubletap)
+{
+	struct litest_device *dev = litest_current_device();
+	struct libinput *li = dev->libinput;
+
+	litest_enable_tap(dev->libinput_device);
+	litest_drain_events(dev->libinput);
+
+	/* two fingers down and up, then one finger
+	   down and up
+	   -> one button right event pair
+	*/
+	litest_touch_down(dev, 0, 50, 50);
+	litest_touch_down(dev, 1, 70, 50);
+	litest_touch_up(dev, 0);
+	litest_touch_up(dev, 1);
+
+	litest_touch_down(dev, 0, 50, 50);
+	litest_touch_up(dev, 0);
+
+	libinput_dispatch(li);
+
+	litest_assert_button_event(li, BTN_RIGHT,
+				   LIBINPUT_BUTTON_STATE_PRESSED);
+	litest_assert_button_event(li, BTN_RIGHT,
+				   LIBINPUT_BUTTON_STATE_RELEASED);
+
+	//	litest_assert_empty_queue(li);
+}
+END_TEST
+
 START_TEST(touchpad_no_2fg_tap_after_move)
 {
 	struct litest_device *dev = litest_current_device();
@@ -2381,6 +2412,8 @@ litest_setup_tests_touchpad_tap(void)
 	litest_add("tap-2fg:2fg", touchpad_2fg_tap_quickrelease, LITEST_TOUCHPAD, LITEST_SINGLE_TOUCH|LITEST_SEMI_MT);
 	litest_add("tap-2fg:2fg", touchpad_1fg_tap_click, LITEST_TOUCHPAD|LITEST_BUTTON, LITEST_CLICKPAD);
 	litest_add("tap-2fg:2fg", touchpad_2fg_tap_click, LITEST_TOUCHPAD|LITEST_BUTTON, LITEST_SINGLE_TOUCH|LITEST_CLICKPAD);
+
+	litest_add("tap-2fg:2fg", touchpad_2fg_half_doubletap, LITEST_TOUCHPAD, LITEST_ANY);
 
 	litest_add("tap-2fg:2fg", touchpad_2fg_tap_click_apple, LITEST_APPLE_CLICKPAD, LITEST_ANY);
 	litest_add("tap-2fg:2fg", touchpad_no_2fg_tap_after_move, LITEST_TOUCHPAD, LITEST_SINGLE_TOUCH|LITEST_SEMI_MT);
